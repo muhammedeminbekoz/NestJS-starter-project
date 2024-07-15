@@ -1,6 +1,6 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import * as dotenv from 'dotenv';
-import { User } from 'src/user/dto/entities/user.entity';
+import { User } from 'src/user/entities/user.entity';
 
 dotenv.config();
 
@@ -12,4 +12,5 @@ export const typeOrmOptions: TypeOrmModuleOptions = {
   username: process.env.DB_USERNAME,
   entities: [User],
   database: process.env.DB_NAME,
+  synchronize: true,
 };
