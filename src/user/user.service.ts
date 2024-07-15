@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Repository } from 'typeorm';
-import { User } from './dto/entities/user.entity';
+import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
@@ -9,18 +9,23 @@ export class UserService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
   ) {}
-  activeUsers() {
-    return [
-      { id: 1, name: 'Muhammed' },
-      { id: 2, name: 'Muhammed' },
-    ];
+
+  async createUser(createUserDto: CreateUserDto): Promise<User> {
+    const data = this.userRepository.create(createUserDto);
+    return await this.userRepository.save(data);
   }
 
-  createUser(createUserDto: CreateUserDto) {
-    const user: User = new User();
-    user.name = createUserDto.name;
-    user.email = createUserDto.email;
+  async getUsers() {
+    const users = await this.userRepository.find();
+    return users;
+  }
 
-    return this.userRepository.save(user);
+  async deleteUser(param: string) {
+    const user = await this.userRepository.findOneBy({ id: param });
+    if (user) {
+      return await this.userRepository.remove(user);
+    } else {
+      return { success: false, message: 'bulunamadı', statusCode: 400 };
+    }
   }
 }
