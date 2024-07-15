@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-import { Repository } from 'typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 
@@ -20,10 +20,23 @@ export class UserService {
     return users;
   }
 
+  async getUserById(param: string) {
+    const user = await this.userRepository.findOne({ where: { id: param } });
+    return user;
+  }
+
+  async getDeletedUsers() {
+    const users = await this.userRepository.find({
+      withDeleted: true,
+      where: { deletedAt: Not(IsNull()) },
+    });
+    return users;
+  }
+
   async deleteUser(param: string) {
     const user = await this.userRepository.findOneBy({ id: param });
     if (user) {
-      return await this.userRepository.remove(user);
+      return await this.userRepository.softRemove(user);
     } else {
       return { success: false, message: 'bulunamadı', statusCode: 400 };
     }
